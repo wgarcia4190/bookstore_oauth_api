@@ -3,10 +3,11 @@ package http
 import (
 	"net/http"
 
-	"github.com/wgarcia4190/bookstore_oauth_api/internal/utils/errors"
+	atDomain "github.com/wgarcia4190/bookstore_oauth_api/internal/domain/access_token"
 
 	"github.com/gin-gonic/gin"
-	"github.com/wgarcia4190/bookstore_oauth_api/internal/domain/access_token"
+	"github.com/wgarcia4190/bookstore_oauth_api/internal/services/access_token"
+	"github.com/wgarcia4190/bookstore_oauth_api/internal/utils/errors"
 )
 
 type AccessTokenHandler interface {
@@ -18,7 +19,7 @@ type accessTokenHandler struct {
 	service access_token.Service
 }
 
-func NewHandler(service access_token.Service) AccessTokenHandler {
+func NewAccessTokenHandler(service access_token.Service) AccessTokenHandler {
 	return &accessTokenHandler{
 		service: service,
 	}
@@ -35,17 +36,16 @@ func (h *accessTokenHandler) GetById(c *gin.Context) {
 }
 
 func (h *accessTokenHandler) Create(c *gin.Context) {
-	var at access_token.AccessToken
-	if err := c.ShouldBindJSON(&at); err != nil {
+	var request atDomain.AccessTokenRequest
+	if err := c.ShouldBindJSON(&request); err != nil {
 		restErr := errors.NewBadRequestError("invalid json body")
 		c.JSON(restErr.Status, restErr)
 		return
 	}
-
-	if err := h.service.Create(at); err != nil {
+	accessToken, err := h.service.Create(request)
+	if err != nil {
 		c.JSON(err.Status, err)
 		return
 	}
-
-	c.JSON(http.StatusCreated, at)
+	c.JSON(http.StatusCreated, accessToken)
 }

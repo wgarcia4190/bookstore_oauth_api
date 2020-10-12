@@ -1,18 +1,20 @@
-package access_token
+package access_token_test
 
 import (
 	"testing"
 	"time"
 
+	"github.com/wgarcia4190/bookstore_oauth_api/internal/domain/access_token"
+
 	"github.com/stretchr/testify/assert"
 )
 
 func TestAccessTokenConstants(t *testing.T) {
-	assert.EqualValues(t, 24, expirationTime, "expiration time should be 24 hours")
+	assert.EqualValues(t, 24, access_token.ExpirationTime, "expiration time should be 24 hours")
 }
 
 func TestGetNewAccessToken(t *testing.T) {
-	at := GetNewAccessToken()
+	at := access_token.GetNewAccessToken(123)
 
 	assert.False(t, at.IsExpired(), "brand new access token should not be expired")
 	assert.EqualValues(t, "", at.AccessToken, "new access token should not have defined token id")
@@ -20,7 +22,7 @@ func TestGetNewAccessToken(t *testing.T) {
 }
 
 func TestAccessTokenIsExpired(t *testing.T) {
-	at := AccessToken{}
+	at := access_token.AccessToken{}
 
 	assert.True(t, at.IsExpired(), "empty access token should be expired by default")
 
